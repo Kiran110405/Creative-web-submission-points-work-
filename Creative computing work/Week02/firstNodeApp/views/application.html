@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>My Application</h1>
+    <p>Hi!</p>
+
+    <form action="/newrabbit" method="POST">
+        <label">Rabbit</label><br>
+        <input type="text" id="name" name="name"><br>
+        <input type="text" id="colour" name="colour"><br>
+        <input type="text" id="yod" name="yod"><br>
+        <input type="submit" value="add rabbit">
+    </form>
+
+    <h4>Rabbit info</h4>
+
+    <script>
+        fetch('/getrabbits')
+            .then(response=>response.json())
+            .then(processRabbitdata)
+
+        function processRabbitdata(data){
+            // console.log(data)
+            let list=document.createElement('ul')
+            data.rabbits.forEach(rabbit=>{
+                console.log(`${rabbit.name} was ${rabbit.colour} and sadly dies in ${rabbit.yod}`)
+                let newli=document.createElement('li')
+                newli.innerText=`${rabbit.name} was ${rabbit.colour} and sadly dies in ${rabbit.yod}`
+                list.appendChild(newli)
+            })
+            document.body.appendChild(list)
+        }
+    </script>
+</body>
+</html>
