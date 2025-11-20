@@ -12,3 +12,8 @@ A way that it could use a database would be to store inputted small notes that t
 For a novel user experience, I could try and use dynamic images, the addition of the OpenAI could be a big step in creating a brand-new experience for students as it will be implemented into the study web app.
 
 The audience that I am trying to reach are students as this web app will help them the most when it comes to studying. The web app aligns with their needs because it comes with a built in calendar and map where they could put down their deadlines and tasks as well as a map to show them the different study locations within the area.
+
+
+
+
+vgvkugighblghvlguhi
