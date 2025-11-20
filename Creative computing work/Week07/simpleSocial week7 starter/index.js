@@ -18,12 +18,19 @@ const mongoAppName = process.env.mongoAppName;
 console.log(mongoDBUsername, mongoDBPassword, mongoAppName);
 const connectionString = `mongodb+srv://${mongoDBUsername}:${mongoDBPassword}@cluster0.lpfnqqx.mongodb.net/${mongoAppName}?retryWrites=true&w=majority`;
 
+app.listen(3000, () => {
+  console.log("listening on port 3000");
+});
+
 app.set("view engine", "ejs");
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true })); ///?///////
 
 const mongoose = require("mongoose");
-mongoose.connect(connectionString);
+mongoose
+  .connect(connectionString)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 app.use(
   sessions({
@@ -34,27 +41,31 @@ app.use(
   })
 );
 
-app.listen(3000, () => {
-  console.log("listening on port 3000");
-});
-
 app.use(express.static("public"));
 
-app.use(express.urlencoded({ extended: false }));
-
 function checkLoggedIn(request, response, nextAction) {
-  if (request.session) {
-    if (request.session.username) {
-      nextAction();
-    } else {
-      request.session.destroy();
-      response.sendFile(path.join(__dirname, "/views", "notloggedin.html"));
-    }
-  } else {
-    request.session.destroy();
-    response.sendFile(path.join(__dirname, "/views", "notloggedin.html"));
+  if (!request.session || !request.session.username) {
+    return response.sendFile(
+      path.join(__dirname, "/views", "notloggedin.html")
+    );
   }
+  nextAction();
 }
+
+function checkAdmin(req, res, next) {
+  if (!req.session || !req.session.username) {
+    return res.send("Not logged in."); //responsds with this if the user/admin is not logged in
+  }
+
+  userModel.userData
+    .findOne({ username: req.session.username }) //check if the username is the same as the one that logged in
+    .then((user) => {
+      if (!user || !user.isAdmin) {
+        return res.send("Access denied. Admins only");
+      }
+      next();
+    });
+} //added for submission 2
 
 function checkedLoggedInState(request) {
   return request.session && request.session.username;
@@ -64,7 +75,7 @@ app.get("/app", checkLoggedIn, async (request, response) => {
   // response.sendFile(path.join(__dirname, '/views', 'app.html'))
   response.render("pages/app", {
     username: request.session.username,
-    isLoggedIn: getLoggedInState(request),
+    isLoggedIn: checkedLoggedInState(request),
     posts: await posts.getLatestNPosts(3),
   });
 });
@@ -89,18 +100,54 @@ app.get("/login", (request, response) => {
   });
 });
 
-app.post("/login", async (request, response) => {
-  if (await userModel.checkUser(request.body.username, request.body.password)) {
-    request.session.username = request.body.username;
-    response.render("pages/app", {
-      username: request.session.username,
-      isLoggedIn: getLoggedInState(request),
-      posts: await posts.getLatestNPosts(3),
-    });
-  } else {
-    response.sendFile(path.join(__dirname, "/views", "notloggedin.html"));
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  const valid = await userModel.checkUser(username, password);
+
+  if (!valid)
+    return res.sendFile(path.join(__dirname, "/views", "notloggedin.html"));
+
+  // Save session
+  req.session.username = username;
+
+  const user = await userModel.userData.findOne({ username });
+
+  if (user.isAdmin) {
+    // Redirect admins to admin page
+    return res.redirect("/admin");
   }
+
+  // Regular user profile
+  res.render("pages/profile", {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    username: req.session.username,
+    isAdmin: user.isAdmin,
+    isLoggedIn: checkedLoggedInState(req),
+    posts: await posts.getLatestNPosts(3),
+  });
 });
+
+app.get("/admin", checkAdmin, async (req, res) => {
+  const allUsers = await userModel.userData.find({}, "-password"); // exclude passwords
+  const allPosts = await posts.getLatestNPosts(100);
+
+  res.render("pages/admin", {
+    users: allUsers,
+    posts: allPosts,
+    username: req.session.username,
+  });
+}); //added for submission 2
+
+app.post("/admin/deleteUser/:id", checkAdmin, async (req, res) => {
+  await userModel.userData.findByIdAndDelete(req.params.id);
+  res.redirect("/admin");
+}); //added for submission 2
+
+app.post("/admin/deletePost/:id", checkAdmin, async (req, res) => {
+  await posts.postData.findByIdAndDelete(req.params.id);
+  res.redirect("/admin");
+}); // added for submission 2
 
 app.get("/register", (request, response) => {
   response.sendFile(path.join(__dirname, "/views", "register.html"));
@@ -146,12 +193,16 @@ app.post("/register", async (req, res) => {
 
 app.get("/profile", checkLoggedIn, async (req, res) => {
   try {
-    const username = req.session.username;
-    console.log("test profile");
-    // Pull full user info from DB
-    const user = await userModel.userData.findOne({ username });
+    const user = await userModel.userData.findOne({
+      username: req.session.username,
+    });
 
-    res.render("pages/profile.ejs", {
+    if (!user) {
+      return res.send("User not found.");
+    }
+    // console.log("render profile");
+    // console.log(user);
+    res.render("pages/profile", {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,

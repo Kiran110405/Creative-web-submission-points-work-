@@ -1,25 +1,26 @@
-<h1>Admin Dashboard</h1>
+<h2>Admin Dashboard</h2>
+<p>Welcome, <%= username %> (Admin)</p>
 
-<h2>Users</h2>
+<h3>Users</h3>
 <ul>
     <% users.forEach(u=> { %>
         <li>
-            <%= u.username %> — <%= u.firstName %>
+            <%= u.username %> - <%= u.firstName %>
                     <%= u.lastName %>
-                        <form action="/admin/delete-user/<%= u._id %>" method="POST" style="display:inline;">
-                            <button>Delete</button>
+                        <form action="/admin/deleteUser/<%= u._id %>" method="POST" style="display:inline;">
+                            <button type="submit">Delete</button>
                         </form>
         </li>
         <% }) %>
 </ul>
 
-<h2>Posts</h2>
+<h3>Posts</h3>
 <ul>
     <% posts.forEach(p=> { %>
         <li>
-            <%= p.message %> (by <%= p.author %>)
-                    <form action="/admin/delete-post/<%= p._id %>" method="POST" style="display:inline;">
-                        <button>Delete</button>
+            <%= p.message %> (by <%= p.poster %>)
+                    <form action="/admin/deletePost/<%= p._id %>" method="POST" style="display:inline;">
+                        <button type="submit">Delete</button>
                     </form>
         </li>
         <% }) %>

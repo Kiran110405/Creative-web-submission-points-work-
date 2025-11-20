@@ -12,19 +12,20 @@ const userSchema = new Schema({
 
 const userData = model("user", userSchema);
 
-async function addUser(username, password, firstName, lastName) {
-  // Check if username already exists
-  let found = await userData.findOne({ username }).exec();
+async function addUser(usernameFromForm, password, firstName, lastName) {
+  let found = await userData.findOne({ username: usernameFromForm });
+
   if (found) return false;
 
-  // Create new user
-  await userData.create({
-    username,
+  const newUser = {
+    username: usernameFromForm,
     password,
     firstName,
     lastName,
-  });
+    isAdmin: false,
+  };
 
+  await userData.create(newUser);
   return true;
 }
 
