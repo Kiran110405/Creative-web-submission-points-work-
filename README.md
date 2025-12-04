@@ -27,6 +27,15 @@ firstName: user.firstName,
 lastName: user.lastName,
 and then displays them in ejs. 
 
+# Submission point 3 Outline Creative web app.
+
+- the purpose of my web app is to provide univeristy students with an environemnt where they can focus in on their education and help them to learn and keep on track with different educational tasks/deadlines that they may have. The intended audience are university students, and the overall aim of the web app is to help them with their studies
+- The technology stack that I am using is express as, from lesson tutorials, I can understand it for the most part. As well as stylings such as GSAP.
+- some major features of the app are spread into different pages, for example, I am in the process of trying to integrate openAI into my web app, to be used as such as a personal assistant for the student, as well as a notes page where the user can create notes where they could delete and edit them, as well as a map page where students can find areas around them where they are able to go and study.
+- Challenges that I have faced on the way include the register and login part of the web app where the web app can create new users and add them to the database and be stored within mongoDB, but I was able to figure this how via the tutorial videos that were provided. anticipated challenges are the api calenders, and trying to include the feature of pop ups when students deadlines are approaching, as well as, not that it will be difficult, but with styling, trying to find a set theme for the web app to have.
+- Experiments that I have undertaken include adding features into the map API, to make it easier to use as well as further developments which are going to me pointers that pin-point areas that the students can go to study. I have also experiemnted with different styling options that are available to me in GSAP, such as animations for headings to make the webapp have a more lively feel. But currently I am trying to work with calender APIS and trying different ones that I believe will be a good fit for the wbe app.
+- Learning points from independent study include a almost full understanding of how the data in a backe-end application using express flows and how it works, as well as learning Javascript in a more in depth way via youtube tutorials and fixing and solving problems that I come across. I have also better learn how I can store user inputed data to mongoDB as well as how to work with data when it comes to the backened of the application.
+
 
 
 
